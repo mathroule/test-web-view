@@ -26,6 +26,7 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
+    implementation 'com.blackberry.blackberrydynamics:android_handheld_platform:4.2.0.104'
 
     testImplementation 'junit:junit:4.12'
 

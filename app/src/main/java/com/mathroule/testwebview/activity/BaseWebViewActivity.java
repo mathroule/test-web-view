@@ -21,7 +21,9 @@ public abstract class BaseWebViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_web_view);
+
+        initContentView();
+
         webView = findViewById(R.id.webView);
 
         webView.clearCache(true);
@@ -34,6 +36,10 @@ public abstract class BaseWebViewActivity extends AppCompatActivity {
         webView.setWebChromeClient(new WebChromeClient());
 
         webView.loadUrl(URL);
+    }
+
+    void initContentView() {
+        setContentView(R.layout.activity_web_view);
     }
 
     @NonNull

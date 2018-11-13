@@ -2,12 +2,16 @@ package com.mathroule.testwebview.web.client;
 
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.webkit.ClientCertRequest;
 import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.nio.charset.Charset;
 
 import timber.log.Timber;
 
@@ -57,5 +61,19 @@ public abstract class BaseWebViewClient extends WebViewClient {
     public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
         Timber.d("onReceivedHttpAuthRequest handler: %s host: %s realm: %s", handler, host, realm);
         super.onReceivedHttpAuthRequest(view, handler, host, realm);
+    }
+
+    @Nullable
+    static String getMimeType(@Nullable final String contentType) {
+        return contentType != null && contentType.startsWith("text/html")
+                ? "text/html"
+                : contentType;
+    }
+
+    @NonNull
+    static String getEncoding(@Nullable final String contentType) {
+        return contentType != null && contentType.contains("charset=")
+                ? contentType.substring(contentType.lastIndexOf("charset=") + 8, contentType.length())
+                : Charset.defaultCharset().displayName();
     }
 }
