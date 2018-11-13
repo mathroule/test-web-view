@@ -57,17 +57,27 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
         return super.shouldInterceptRequest(view, request);
     }
 
+    @NonNull
     private static WebResourceResponse toWebResourceResponse(@NonNull final Response response) {
-        final String mimeType = response.header("content-type");
+        final String contentType = response.header("content-type");
+        final String mimeType = contentType != null && contentType.startsWith("text/html")
+                ? "text/html"
+                : contentType;
+        final String encoding = contentType != null && contentType.contains("charset=")
+                ? contentType.substring(contentType.lastIndexOf("charset=") + 8, contentType.length())
+                : Charset.defaultCharset().displayName();
         final int statusCode = response.code();
         final String reasonPhrase = TextUtils.isEmpty(response.message()) ? "unknown" : response.message();
         final Map<String, String> responseHeaders = toHeaders(response.headers().toMultimap());
         final ResponseBody body = response.body();
         final InputStream data = body != null ? body.byteStream() : null;
 
-        return new WebResourceResponse(mimeType, Charset.defaultCharset().displayName(), statusCode, reasonPhrase, responseHeaders, data);
+        Timber.d("To web resources contentType: %s, mimeType: %s, encoding: %s, statusCode: %d, reasonPhrase: %s, responseHeaders: %s ", contentType, mimeType, encoding, statusCode, reasonPhrase, responseHeaders);
+
+        return new WebResourceResponse(mimeType, encoding, statusCode, reasonPhrase, responseHeaders, data);
     }
 
+    @NonNull
     private static Map<String, String> toHeaders(@NonNull final Map<String, List<String>> headers) {
         final Map<String, String> result = new HashMap<>();
 
