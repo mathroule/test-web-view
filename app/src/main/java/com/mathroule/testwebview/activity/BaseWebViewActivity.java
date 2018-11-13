@@ -2,6 +2,7 @@ package com.mathroule.testwebview.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebChromeClient;
@@ -9,6 +10,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.good.gd.GDAndroid;
 import com.mathroule.testwebview.R;
 
 public abstract class BaseWebViewActivity extends AppCompatActivity {
@@ -22,7 +24,9 @@ public abstract class BaseWebViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initContentView();
+        GDAndroid.getInstance().activityInit(this);
+
+        setContentView(getLayout());
 
         webView = findViewById(R.id.webView);
 
@@ -38,8 +42,9 @@ public abstract class BaseWebViewActivity extends AppCompatActivity {
         webView.loadUrl(URL);
     }
 
-    void initContentView() {
-        setContentView(R.layout.activity_web_view);
+    @LayoutRes
+    int getLayout() {
+        return R.layout.activity_web_view;
     }
 
     @NonNull
