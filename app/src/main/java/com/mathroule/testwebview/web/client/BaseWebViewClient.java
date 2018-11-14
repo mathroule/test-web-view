@@ -17,6 +17,8 @@ import timber.log.Timber;
 
 public abstract class BaseWebViewClient extends WebViewClient {
 
+    private String lastUrl;
+
     private long startTime;
 
     @Override
@@ -27,6 +29,7 @@ public abstract class BaseWebViewClient extends WebViewClient {
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        lastUrl = url;
         startTime = System.currentTimeMillis();
         Timber.d("onPageStarted url: %s", url);
         super.onPageStarted(view, url, favicon);
@@ -63,6 +66,16 @@ public abstract class BaseWebViewClient extends WebViewClient {
         super.onReceivedHttpAuthRequest(view, handler, host, realm);
     }
 
+    static void redirectTo(@NonNull final WebView view, @NonNull final String url) {
+        Timber.d("Redirecting web view to %s", url);
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                view.loadUrl(url);
+            }
+        });
+    }
+
     @Nullable
     static String getMimeType(@Nullable final String contentType) {
         return contentType != null && contentType.startsWith("text/html")
@@ -75,5 +88,14 @@ public abstract class BaseWebViewClient extends WebViewClient {
         return contentType != null && contentType.contains("charset=")
                 ? contentType.substring(contentType.lastIndexOf("charset=") + 8, contentType.length())
                 : Charset.defaultCharset().displayName();
+    }
+
+    static boolean isRedirection(int statusCode) {
+        return 300 <= statusCode && statusCode <= 399;
+    }
+
+    @Nullable
+    String getLastUrl() {
+        return lastUrl;
     }
 }

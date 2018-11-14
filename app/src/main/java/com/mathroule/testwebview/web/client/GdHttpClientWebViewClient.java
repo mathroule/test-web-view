@@ -11,12 +11,16 @@ import com.good.gd.apache.http.Header;
 import com.good.gd.apache.http.HeaderIterator;
 import com.good.gd.apache.http.HttpEntity;
 import com.good.gd.apache.http.HttpResponse;
+import com.good.gd.apache.http.client.RedirectHandler;
 import com.good.gd.apache.http.client.methods.HttpGet;
-import com.good.gd.apache.http.client.methods.HttpUriRequest;
+import com.good.gd.apache.http.client.methods.HttpPost;
+import com.good.gd.apache.http.client.methods.HttpRequestBase;
+import com.good.gd.apache.http.protocol.HttpContext;
 import com.good.gd.net.GDHttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,16 +31,55 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        final GDHttpClient client = new GDHttpClient();
-
         final String url = request.getUrl().toString();
         final String method = request.getMethod();
+
+        return interceptRequest(view, method, url);
+    }
+
+    private WebResourceResponse interceptRequest(@NonNull final WebView view, @NonNull final String method, @NonNull final String url) {
+        final GDHttpClient client = new GDHttpClient();
+        client.setRedirectHandler(new RedirectHandler() {
+            @Override
+            public boolean isRedirectRequested(HttpResponse httpResponse, HttpContext httpContext) {
+                return false;
+            }
+
+            @Override
+            public URI getLocationURI(HttpResponse httpResponse, HttpContext httpContext) {
+                return null;
+            }
+        });
+
         Timber.d("Starting to load %s %s", method, url);
 
-        final HttpUriRequest httpRequest = new HttpGet(url);
-
+        final HttpRequestBase httpRequest = createHttpRequest(url, method);
         try {
-            return toWebResourceResponse(client.execute(httpRequest));
+            final HttpResponse httpResponse = client.execute(httpRequest);
+
+            final int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (isRedirection(statusCode)) {
+                final Header location = httpResponse.getFirstHeader("Location") != null
+                        ? httpResponse.getFirstHeader("Location")
+                        : httpResponse.getFirstHeader("location");
+
+                if (location != null) {
+                    final String redirectUrl = location.getValue();
+                    Timber.d("Redirecting from %s to %s", url, redirectUrl);
+                    if (url.equals(getLastUrl())) {
+                        redirectTo(view, redirectUrl);
+                    } else {
+                        Timber.d("Proxying request from %s %s to %s %s", method, url, method, redirectUrl);
+                        return interceptRequest(view, method, redirectUrl);
+                    }
+                } else {
+                    Timber.e("Error while doing redirect. Location is unknown");
+                }
+
+                return null;
+            }
+
+            return toWebResourceResponse(httpResponse);
         } catch (IOException e) {
             Timber.e(e, "Error while loading %s %s", method, url);
         } finally {
@@ -46,11 +89,23 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
 
         Timber.d("Done loading %s %s", method, url);
 
-        return super.shouldInterceptRequest(view, request);
+        return null;
     }
 
     @NonNull
-    private static WebResourceResponse toWebResourceResponse(@NonNull final HttpResponse response) {
+    private static HttpRequestBase createHttpRequest(@NonNull final String url, @NonNull final String method) {
+        switch (method.toUpperCase()) {
+            case "POST":
+                // TODO set request body
+                return new HttpPost(url);
+            case "GET":
+            default:
+                return new HttpGet(url);
+        }
+    }
+
+    @Nullable
+    private WebResourceResponse toWebResourceResponse(@NonNull final HttpResponse response) {
         final Header firstHeader = response.getFirstHeader("content-type");
         final String contentType = firstHeader != null ? firstHeader.getValue() : null;
         final String mimeType = getMimeType(contentType);
@@ -58,20 +113,24 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
         final int statusCode = response.getStatusLine().getStatusCode();
         final String reasonPhrase = TextUtils.isEmpty(response.getStatusLine().getReasonPhrase()) ? "unknown" : response.getStatusLine().getReasonPhrase();
         final Map<String, String> responseHeaders = toHeaders(response.headerIterator());
+
+        Timber.d("New web resources contentType: %s, mimeType: %s, encoding: %s, statusCode: %d, reasonPhrase: %s, responseHeaders: %s ", contentType, mimeType, encoding, statusCode, reasonPhrase, responseHeaders);
+
         InputStream data = null;
         try {
-            final  HttpEntity entity = response.getEntity();
-            if(entity != null) {
+            final HttpEntity entity = response.getEntity();
+            if (entity != null) {
                 data = entity.getContent();
             }
         } catch (IOException e) {
             Timber.e(e, "Error while converting response");
-        }
 
-        Timber.d("New web resources contentType: %s, mimeType: %s, encoding: %s, statusCode: %d, reasonPhrase: %s, responseHeaders: %s ", contentType, mimeType, encoding, statusCode, reasonPhrase, responseHeaders);
+            return null;
+        }
 
         return new WebResourceResponse(mimeType, encoding, statusCode, reasonPhrase, responseHeaders, data);
     }
+
 
     @NonNull
     private static Map<String, String> toHeaders(@NonNull final HeaderIterator headerIterator) {
