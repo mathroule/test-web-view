@@ -13,8 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -48,7 +50,7 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
 
         final Request httpRequest = new Request.Builder()
                 .url(url)
-                .method(method, null)
+                .method(method, getRequestBody(method))
                 .build();
 
         try {
@@ -84,6 +86,13 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
         Timber.d("Done loading %s %s", method, url);
 
         return null;
+    }
+
+    @Nullable
+    private RequestBody getRequestBody(@NonNull final String method) {
+        return method.toUpperCase().equals("POST")
+                ? RequestBody.create(MediaType.parse("text/plain; charset=utf-8"), "")
+                : null;
     }
 
     @NonNull
