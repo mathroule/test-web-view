@@ -36,6 +36,14 @@
                 android:value="com.mathroule.testwebview.activity.MainActivity" />
         </activity>
         <activity
+            android:name=".activity.HttpUrlConnectionWebViewActivity"
+            android:label="@string/title_activity_http_url_connection_web_view"
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mathroule.testwebview.activity.MainActivity" />
+        </activity>
+        <activity
             android:name=".activity.OkHttpClientWebViewActivity"
             android:label="@string/title_activity_ok_http_client_web_view"
             android:parentActivityName=".activity.MainActivity">

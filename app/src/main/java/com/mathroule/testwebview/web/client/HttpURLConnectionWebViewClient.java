@@ -9,30 +9,15 @@ import android.webkit.WebView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
-public class OkHttpClientWebViewClient extends BaseWebViewClient {
-
-    private final OkHttpClient client;
-
-    public OkHttpClientWebViewClient() {
-        final HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
-
-        client = new OkHttpClient.Builder()
-                .addInterceptor(logging)
-                .followRedirects(false)
-                .build();
-    }
+public class HttpURLConnectionWebViewClient extends BaseWebViewClient {
 
     @Nullable
     @Override
@@ -46,19 +31,15 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
     private WebResourceResponse interceptRequest(@NonNull final WebView view, @NonNull final String method, @NonNull final String url) {
         Timber.d("Starting to load %s %s", method, url);
 
-        final Request httpRequest = new Request.Builder()
-                .url(url)
-                .method(method, null)
-                .build();
-
         try {
-            final Response httpResponse = client.newCall(httpRequest).execute();
+            final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod(method);
 
-            final int statusCode = httpResponse.code();
+            final int statusCode = connection.getResponseCode();
             if (isRedirection(statusCode)) {
-                final String redirectUrl = httpResponse.header("Location") != null
-                        ? httpResponse.header("Location")
-                        : httpResponse.header("location");
+                final String redirectUrl = connection.getHeaderField("Location") != null
+                        ? connection.getHeaderField("Location")
+                        : connection.getHeaderField("location");
 
                 if (redirectUrl != null) {
                     Timber.d("Redirecting from %s to %s", url, redirectUrl);
@@ -75,7 +56,7 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
                 return null;
             }
 
-            return toWebResourceResponse(httpResponse);
+            return toWebResourceResponse(connection);
         } catch (IOException e) {
             Timber.e(e, "Error while loading %s %s", method, url);
         }
@@ -86,16 +67,15 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
     }
 
     @NonNull
-    private static WebResourceResponse toWebResourceResponse(@NonNull final Response response) {
-        final String contentType = response.header("content-type");
+    private static WebResourceResponse toWebResourceResponse(@NonNull final HttpURLConnection connection) throws IOException {
+        final String contentType = connection.getHeaderField("content-type");
         final String mimeType = getMimeType(contentType);
         final String encoding = getEncoding(contentType);
-        final int statusCode = response.code();
-        final String message = response.message();
+        final int statusCode = connection.getResponseCode();
+        final String message = connection.getResponseMessage();
         final String reasonPhrase = TextUtils.isEmpty(message) ? "unknown" : message;
-        final Map<String, String> responseHeaders = toHeaders(response.headers().toMultimap());
-        final ResponseBody body = response.body();
-        final InputStream data = body != null ? body.byteStream() : null;
+        final Map<String, String> responseHeaders = toHeaders(connection.getHeaderFields());
+        final InputStream data = connection.getInputStream();
 
         Timber.d("New web resources contentType: %s, mimeType: %s, encoding: %s, statusCode: %d, reasonPhrase: %s, responseHeaders: %s ", contentType, mimeType, encoding, statusCode, reasonPhrase, responseHeaders);
 

@@ -108,7 +108,8 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
         final String mimeType = getMimeType(contentType);
         final String encoding = getEncoding(contentType);
         final int statusCode = response.getStatusLine().getStatusCode();
-        final String reasonPhrase = TextUtils.isEmpty(response.getStatusLine().getReasonPhrase()) ? "unknown" : response.getStatusLine().getReasonPhrase();
+        final String message = response.getStatusLine().getReasonPhrase();
+        final String reasonPhrase = TextUtils.isEmpty(message) ? "unknown" : message;
         final Map<String, String> responseHeaders = toHeaders(response.headerIterator());
 
         Timber.d("New web resources contentType: %s, mimeType: %s, encoding: %s, statusCode: %d, reasonPhrase: %s, responseHeaders: %s ", contentType, mimeType, encoding, statusCode, reasonPhrase, responseHeaders);

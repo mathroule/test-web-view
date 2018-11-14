@@ -23,6 +23,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, DefaultWebViewActivity.class));
     }
 
+    public void onStartHttpUrlConnectionWebView(View view) {
+        startActivity(new Intent(MainActivity.this, HttpUrlConnectionWebViewActivity.class));
+    }
+
     public void onStartOkHttpWebView(View view) {
         startActivity(new Intent(MainActivity.this, OkHttpClientWebViewActivity.class));
     }

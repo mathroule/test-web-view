@@ -22,6 +22,11 @@
             android:layout_height="wrap_content"
             android:onClick="onStartDefaultWebView"
             android:text="@string/start_default_web_view" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onStartHttpUrlConnectionWebView"
+            android:text="@string/start_http_url_connection_web_view" />
 
         <Button
             android:layout_width="match_parent"
