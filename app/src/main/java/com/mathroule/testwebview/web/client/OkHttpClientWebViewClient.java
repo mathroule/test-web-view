@@ -22,13 +22,13 @@ import timber.log.Timber;
 
 public class OkHttpClientWebViewClient extends BaseWebViewClient {
 
-    private final OkHttpClient client;
+    private final OkHttpClient okHttpClient;
 
     public OkHttpClientWebViewClient() {
         final HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
 
-        client = new OkHttpClient.Builder()
+        okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(logging)
                 .followRedirects(false)
                 .build();
@@ -52,7 +52,7 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
                 .build();
 
         try {
-            final Response httpResponse = client.newCall(httpRequest).execute();
+            final Response httpResponse = okHttpClient.newCall(httpRequest).execute();
 
             final int statusCode = httpResponse.code();
             if (isRedirection(statusCode)) {
@@ -62,6 +62,7 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
 
                 if (redirectUrl != null) {
                     Timber.d("Redirecting from %s to %s", url, redirectUrl);
+                    // TODO replace with WebResourceRequest.isRedirect()
                     if (url.equals(getLastUrl())) {
                         redirectTo(view, redirectUrl);
                     } else {

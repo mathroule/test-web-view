@@ -2,7 +2,7 @@ package com.mathroule.testwebview.web.client;
 
 import android.support.annotation.NonNull;
 
-import com.good.gd.net.GDHttpClient;
+import com.good.gd.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,12 +11,12 @@ public class InputStreamWrapper extends InputStream {
 
     private final InputStream inputStream;
 
-    private final GDHttpClient gdHttpClient;
+    private final DefaultHttpClient defaultHttpClient;
 
-    public InputStreamWrapper(@NonNull final InputStream inputStream, @NonNull final GDHttpClient gdHttpClient) {
+    InputStreamWrapper(@NonNull final InputStream inputStream, @NonNull final DefaultHttpClient defaultHttpClient) {
         super();
         this.inputStream = inputStream;
-        this.gdHttpClient = gdHttpClient;
+        this.defaultHttpClient = defaultHttpClient;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class InputStreamWrapper extends InputStream {
         } catch (IOException e) {
             throw e;
         } finally {
-            gdHttpClient.getConnectionManager().shutdown();
+            defaultHttpClient.getConnectionManager().shutdown();
         }
     }
 }

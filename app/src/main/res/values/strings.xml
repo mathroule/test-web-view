@@ -2,10 +2,12 @@
     <string name="app_name">Test Web View</string>
     <string name="title_activity_default_web_view">Default web View</string>
     <string name="title_activity_http_url_connection_web_view">HTTP URL connection intercept web view</string>
-    <string name="title_activity_ok_http_client_web_view">OkHttpClient intercept web View</string>
+    <string name="title_activity_default_http_client_web_view">DefaultHttpClient intercept web View</string>
     <string name="title_activity_gd_http_client_web_view">GDHttpClient intercept web View</string>
+    <string name="title_activity_ok_http_client_web_view">OkHttpClient intercept web View</string>
     <string name="start_default_web_view">Start default web view</string>
     <string name="start_http_url_connection_web_view">Start HTTP URL connection intercept web view</string>
-    <string name="start_ok_http_client_web_view">Start OkHttpClient intercept web view</string>
+    <string name="start_default_http_client_web_view">Start DefaultHttpClient intercept web view</string>
     <string name="start_gd_http_client_web_view">Start GDHttpClient intercept web view</string>
+    <string name="start_ok_http_client_web_view">Start OkHttpClient intercept web view</string>
 </resources>

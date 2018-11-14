@@ -27,11 +27,15 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, HttpUrlConnectionWebViewActivity.class));
     }
 
-    public void onStartOkHttpWebView(View view) {
-        startActivity(new Intent(MainActivity.this, OkHttpClientWebViewActivity.class));
+    public void onStartDefaultHttpWebView(View view) {
+        startActivity(new Intent(MainActivity.this, DefaultHttpClientWebViewActivity.class));
     }
 
     public void onStartGdHttpWebView(View view) {
         startActivity(new Intent(MainActivity.this, GdHttpClientWebViewActivity.class));
+    }
+
+    public void onStartOkHttpWebView(View view) {
+        startActivity(new Intent(MainActivity.this, OkHttpClientWebViewActivity.class));
     }
 }

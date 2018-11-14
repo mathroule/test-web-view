@@ -3,13 +3,12 @@ package com.mathroule.testwebview.web.client;
 import android.support.annotation.NonNull;
 
 import com.good.gd.apache.http.impl.client.DefaultHttpClient;
-import com.good.gd.net.GDHttpClient;
 
-public class GdHttpClientWebViewClient extends BaseApacheHttpClientWebViewClient {
+public class DefaultHttpClientWebViewClient extends BaseApacheHttpClientWebViewClient {
 
     @NonNull
     @Override
     DefaultHttpClient createHttpClient() {
-        return new GDHttpClient();
+        return new DefaultHttpClient();
     }
 }
