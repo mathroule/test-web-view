@@ -13,9 +13,10 @@ Setup BlackBerry Dynamics following [this setup](https://developers.blackberry.c
 The default web view URL could be changed in [BaseWebViewActivity.java](./app/src/main/java/com/mathroule/testwebview/activity/BaseWebViewActivity.java).
 
 ## Result
-Loading times in milliseconds.
+Loading times in milliseconds. Test runs on Nexus 6P emulator with Android API 26.
 
 | URL \ HTTP client | Default web view client | HTTP URL connection | Apache default HTTP client | GD HTTP client | OK HTTP client |
 |-------------------|-------------------------|---------------------|----------------------------|----------------|----------------|
 | https://www.google.com | 1535 ms | 1043 ms | 1971 ms | 1965 ms | 717 ms |
 | https://github.com | 2450 ms | 3592 ms | 18906 ms | 18707 ms | 5451 ms |
+| https://httpbin.org/redirect-to?url=https://www.google.com | 883 ms | 1301 ms | 2589 ms | 2524 ms | 1149 ms |
