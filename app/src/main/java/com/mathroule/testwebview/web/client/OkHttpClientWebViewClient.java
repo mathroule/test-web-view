@@ -30,14 +30,20 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
 
         client = new OkHttpClient.Builder()
                 .addInterceptor(logging)
+                .followRedirects(false)
                 .build();
     }
 
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        final String url = request.getUrl().toString();
         final String method = request.getMethod();
+        final String url = request.getUrl().toString();
+        return interceptRequest(view, method, url);
+    }
+
+    @Nullable
+    private WebResourceResponse interceptRequest(@NonNull final WebView view, @NonNull final String method, @NonNull final String url) {
         Timber.d("Starting to load %s %s", method, url);
 
         final Request httpRequest = new Request.Builder()
@@ -46,14 +52,37 @@ public class OkHttpClientWebViewClient extends BaseWebViewClient {
                 .build();
 
         try {
-            return toWebResourceResponse(client.newCall(httpRequest).execute());
+            final Response httpResponse = client.newCall(httpRequest).execute();
+
+            final int statusCode = httpResponse.code();
+            if (isRedirection(statusCode)) {
+                final String redirectUrl = httpResponse.header("Location") != null
+                        ? httpResponse.header("Location")
+                        : httpResponse.header("redirectUrl");
+
+                if (redirectUrl != null) {
+                    Timber.d("Redirecting from %s to %s", url, redirectUrl);
+                    if (url.equals(getLastUrl())) {
+                        redirectTo(view, redirectUrl);
+                    } else {
+                        Timber.d("Proxying request from %s %s to %s %s", method, url, method, redirectUrl);
+                        return interceptRequest(view, method, redirectUrl);
+                    }
+                } else {
+                    Timber.e("Error while doing redirection. Location is unknown");
+                }
+
+                return null;
+            }
+
+            return toWebResourceResponse(httpResponse);
         } catch (IOException e) {
             Timber.e(e, "Error while loading %s %s", method, url);
         }
 
         Timber.d("Done loading %s %s", method, url);
 
-        return super.shouldInterceptRequest(view, request);
+        return null;
     }
 
     @NonNull

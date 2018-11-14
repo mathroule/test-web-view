@@ -31,12 +31,12 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
     @Nullable
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        final String url = request.getUrl().toString();
         final String method = request.getMethod();
-
+        final String url = request.getUrl().toString();
         return interceptRequest(view, method, url);
     }
 
+    @Nullable
     private WebResourceResponse interceptRequest(@NonNull final WebView view, @NonNull final String method, @NonNull final String url) {
         final GDHttpClient gdHttpClient = new GDHttpClient();
         gdHttpClient.setRedirectHandler(new RedirectHandler() {
@@ -73,7 +73,7 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
                         return interceptRequest(view, method, redirectUrl);
                     }
                 } else {
-                    Timber.e("Error while doing redirect. Location is unknown");
+                    Timber.e("Error while doing redirection. Location is unknown");
                 }
 
                 return null;
