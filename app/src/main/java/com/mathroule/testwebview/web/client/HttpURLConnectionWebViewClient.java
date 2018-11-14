@@ -33,6 +33,7 @@ public class HttpURLConnectionWebViewClient extends BaseWebViewClient {
 
         try {
             final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setInstanceFollowRedirects(false);
             connection.setRequestMethod(method);
 
             final int statusCode = connection.getResponseCode();
