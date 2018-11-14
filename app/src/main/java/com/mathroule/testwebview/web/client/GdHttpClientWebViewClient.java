@@ -38,8 +38,8 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
     }
 
     private WebResourceResponse interceptRequest(@NonNull final WebView view, @NonNull final String method, @NonNull final String url) {
-        final GDHttpClient client = new GDHttpClient();
-        client.setRedirectHandler(new RedirectHandler() {
+        final GDHttpClient gdHttpClient = new GDHttpClient();
+        gdHttpClient.setRedirectHandler(new RedirectHandler() {
             @Override
             public boolean isRedirectRequested(HttpResponse httpResponse, HttpContext httpContext) {
                 return false;
@@ -55,7 +55,7 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
 
         final HttpRequestBase httpRequest = createHttpRequest(url, method);
         try {
-            final HttpResponse httpResponse = client.execute(httpRequest);
+            final HttpResponse httpResponse = gdHttpClient.execute(httpRequest);
 
             final int statusCode = httpResponse.getStatusLine().getStatusCode();
             if (isRedirection(statusCode)) {
@@ -79,12 +79,9 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
                 return null;
             }
 
-            return toWebResourceResponse(httpResponse);
+            return toWebResourceResponse(httpResponse, gdHttpClient);
         } catch (IOException e) {
             Timber.e(e, "Error while loading %s %s", method, url);
-        } finally {
-            // TODO move in close method of input stream
-            // client.getConnectionManager().shutdown();
         }
 
         Timber.d("Done loading %s %s", method, url);
@@ -105,7 +102,7 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
     }
 
     @Nullable
-    private WebResourceResponse toWebResourceResponse(@NonNull final HttpResponse response) {
+    private WebResourceResponse toWebResourceResponse(@NonNull final HttpResponse response, @NonNull final GDHttpClient gdHttpClient) {
         final Header firstHeader = response.getFirstHeader("content-type");
         final String contentType = firstHeader != null ? firstHeader.getValue() : null;
         final String mimeType = getMimeType(contentType);
@@ -120,10 +117,12 @@ public class GdHttpClientWebViewClient extends BaseWebViewClient {
         try {
             final HttpEntity entity = response.getEntity();
             if (entity != null) {
-                data = entity.getContent();
+                data = new InputStreamWrapper(entity.getContent(), gdHttpClient);
             }
         } catch (IOException e) {
             Timber.e(e, "Error while converting response");
+
+            gdHttpClient.getConnectionManager().shutdown();
 
             return null;
         }
