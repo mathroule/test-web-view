@@ -18,6 +18,7 @@ import com.good.gd.apache.http.client.methods.HttpRequestBase;
 import com.good.gd.apache.http.impl.client.DefaultHttpClient;
 import com.good.gd.apache.http.protocol.HttpContext;
 import com.good.gd.net.GDHttpClient;
+import com.mathroule.testwebview.web.stream.InputStreamWrapper;
 
 import java.io.IOException;
 import java.io.InputStream;

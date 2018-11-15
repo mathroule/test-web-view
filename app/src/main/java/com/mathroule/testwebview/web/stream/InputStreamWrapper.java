@@ -1,4 +1,4 @@
-package com.mathroule.testwebview.web.client;
+package com.mathroule.testwebview.web.stream;
 
 import android.support.annotation.NonNull;
 
@@ -13,7 +13,7 @@ public class InputStreamWrapper extends InputStream {
 
     private final DefaultHttpClient defaultHttpClient;
 
-    InputStreamWrapper(@NonNull final InputStream inputStream, @NonNull final DefaultHttpClient defaultHttpClient) {
+    public InputStreamWrapper(@NonNull final InputStream inputStream, @NonNull final DefaultHttpClient defaultHttpClient) {
         super();
         this.inputStream = inputStream;
         this.defaultHttpClient = defaultHttpClient;
@@ -33,8 +33,6 @@ public class InputStreamWrapper extends InputStream {
     public void close() throws IOException {
         try {
             inputStream.close();
-        } catch (IOException e) {
-            throw e;
         } finally {
             defaultHttpClient.getConnectionManager().shutdown();
         }
