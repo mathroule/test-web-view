@@ -35,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, GdHttpClientWebViewActivity.class));
     }
 
+    public void onStartGdHttpParallelWebView(View view) {
+        startActivity(new Intent(MainActivity.this, GdHttpClientParallelWebViewActivity.class));
+    }
+
     public void onStartOkHttpWebView(View view) {
         startActivity(new Intent(MainActivity.this, OkHttpClientWebViewActivity.class));
     }

@@ -60,6 +60,14 @@
                 android:value="com.mathroule.testwebview.activity.MainActivity" />
         </activity>
         <activity
+            android:name=".activity.GdHttpClientParallelWebViewActivity"
+            android:label="@string/title_activity_gd_http_client_parallel_web_view"
+            android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mathroule.testwebview.activity.MainActivity" />
+        </activity>
+        <activity
             android:name=".activity.OkHttpClientWebViewActivity"
             android:label="@string/title_activity_ok_http_client_web_view"
             android:parentActivityName=".activity.MainActivity">
