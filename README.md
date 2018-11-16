@@ -19,6 +19,6 @@ _Test runs on Nexus 6P emulator with Android API 26._
 
 | URL \ HTTP client | Default web view client | HTTP URL connection | Apache default HTTP client | GD HTTP client | OK HTTP client |
 |-------------------|-------------------------|---------------------|----------------------------|----------------|----------------|
-| https://www.google.com | 1535 ms | 1043 ms | 1971 ms | 1965 ms | 717 ms |
-| https://github.com | 2450 ms | 3592 ms | 18906 ms | 18707 ms | 5451 ms |
-| https://httpbin.org/redirect-to?url=https://www.google.com | 883 ms | 1301 ms | 2589 ms | 2524 ms | 1149 ms |
+| https://www.google.com | 895 ms | 942 ms | 925 ms | 1932 ms | 623 ms |
+| https://github.com | 1931 ms | 2730 ms | 9787 ms | 21600 ms | 2737 ms |
+| https://httpbin.org/redirect-to?url=https://www.google.com | 707 ms | 1400 ms | 1480 ms | 2560 ms | 1015 ms |
