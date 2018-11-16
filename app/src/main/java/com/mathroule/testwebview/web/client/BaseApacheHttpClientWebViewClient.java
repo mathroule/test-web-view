@@ -17,7 +17,6 @@ import com.good.gd.apache.http.client.methods.HttpPost;
 import com.good.gd.apache.http.client.methods.HttpRequestBase;
 import com.good.gd.apache.http.impl.client.DefaultHttpClient;
 import com.good.gd.apache.http.protocol.HttpContext;
-import com.good.gd.net.GDHttpClient;
 import com.mathroule.testwebview.web.stream.InputStreamWrapper;
 
 import java.io.IOException;
@@ -41,8 +40,8 @@ public abstract class BaseApacheHttpClientWebViewClient extends BaseWebViewClien
 
     @Nullable
     private WebResourceResponse interceptRequest(@NonNull final WebView view, @NonNull final String method, @NonNull final String url) {
-        final GDHttpClient gdHttpClient = new GDHttpClient();
-        gdHttpClient.setRedirectHandler(new RedirectHandler() {
+        final DefaultHttpClient httpClient = createHttpClient();
+        httpClient.setRedirectHandler(new RedirectHandler() {
             @Override
             public boolean isRedirectRequested(HttpResponse httpResponse, HttpContext httpContext) {
                 return false;
@@ -58,7 +57,7 @@ public abstract class BaseApacheHttpClientWebViewClient extends BaseWebViewClien
 
         final HttpRequestBase httpRequest = createHttpRequest(url, method);
         try {
-            final HttpResponse httpResponse = gdHttpClient.execute(httpRequest);
+            final HttpResponse httpResponse = httpClient.execute(httpRequest);
 
             final int statusCode = httpResponse.getStatusLine().getStatusCode();
             if (isRedirection(statusCode)) {
@@ -82,7 +81,7 @@ public abstract class BaseApacheHttpClientWebViewClient extends BaseWebViewClien
                 return null;
             }
 
-            return toWebResourceResponse(httpResponse, gdHttpClient);
+            return toWebResourceResponse(httpResponse, httpClient);
         } catch (IOException e) {
             Timber.e(e, "Error while loading %s %s", method, url);
         }
@@ -96,7 +95,7 @@ public abstract class BaseApacheHttpClientWebViewClient extends BaseWebViewClien
     abstract DefaultHttpClient createHttpClient();
 
     @Nullable
-    private WebResourceResponse toWebResourceResponse(@NonNull final HttpResponse response, @NonNull final DefaultHttpClient defaultHttpClient) {
+    private WebResourceResponse toWebResourceResponse(@NonNull final HttpResponse response, @NonNull final DefaultHttpClient httpClient) {
         final Header firstHeader = response.getFirstHeader("content-type");
         final String contentType = firstHeader != null ? firstHeader.getValue() : null;
         final String mimeType = getMimeType(contentType);
@@ -112,12 +111,12 @@ public abstract class BaseApacheHttpClientWebViewClient extends BaseWebViewClien
         try {
             final HttpEntity entity = response.getEntity();
             if (entity != null) {
-                data = new InputStreamWrapper(entity.getContent(), defaultHttpClient);
+                data = new InputStreamWrapper(entity.getContent(), httpClient);
             }
         } catch (IOException e) {
             Timber.e(e, "Error while converting response");
 
-            defaultHttpClient.getConnectionManager().shutdown();
+            httpClient.getConnectionManager().shutdown();
 
             return null;
         }
