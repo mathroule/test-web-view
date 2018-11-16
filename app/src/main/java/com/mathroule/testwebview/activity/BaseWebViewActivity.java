@@ -16,6 +16,8 @@ import com.mathroule.testwebview.R;
 public abstract class BaseWebViewActivity extends AppCompatActivity {
 
     private static final String URL = "https://www.google.com";
+    // private static final String URL = "https://github.com";
+    // private static final String URL = "https://httpbin.org/redirect-to?url=https://www.google.com";
 
     WebView webView;
 
